@@ -3,11 +3,11 @@ enum NotificationType {
 }
 
 interface NotificationEvent {
-  recipients: string[];
-  subject: string;
-  body: string;
-  isHtml: boolean;
-  type: NotificationType;
+  Recipients: string[];
+  Subject: string;
+  Body: string;
+  IsHtml: boolean;
+  Type: NotificationType;
 }
 
 export { NotificationEvent, NotificationType };

@@ -1,5 +1,6 @@
 import { EachMessageHandler, KafkaMessage } from "kafkajs";
 import { initKafkaWithTopicAndMessageHandler } from "../../configs/kafka.configs";
+import { sendEmailNotification } from "../notification/notification.service";
 
 const initKafka = async () => {
   const topicName: string =
@@ -13,13 +14,16 @@ const onMessage = (message: KafkaMessage) => {
   if (!messageString) {
     return;
   }
+  try {
+    const notificationEvent: any = {
+      ...JSON.parse(messageString),
+      timestamp: new Date().getTime(),
+    };
 
-  const notificationEvent: any = {
-    ...JSON.parse(messageString),
-    timestamp: new Date().getTime(),
-  };
-
-  console.log("Notification event received:", notificationEvent);
+    sendEmailNotification(notificationEvent);
+  } catch (err) {
+    console.log(`Error processing Kafka message: ${err}`);
+  }
 };
 
 const kafkaMessageHandler: EachMessageHandler = async ({ message }) => {

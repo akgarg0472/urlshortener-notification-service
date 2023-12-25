@@ -6,17 +6,17 @@ const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
   console.log(`Received email event: ${notificationEvent}`);
 
   const emailOptions: Mail.Options = {
-    to: notificationEvent.recipients,
-    subject: notificationEvent.subject,
-    text: !notificationEvent.isHtml ? notificationEvent.body : undefined,
-    html: notificationEvent.isHtml ? notificationEvent.body : undefined,
+    to: notificationEvent.Recipients,
+    subject: notificationEvent.Subject,
+    text: !notificationEvent.IsHtml ? notificationEvent.Body : undefined,
+    html: notificationEvent.IsHtml ? notificationEvent.Body : undefined,
   };
 
   try {
     getEmailTransporter().sendMail(emailOptions);
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`Error sending email: ${error.message}`);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`Error sending email: ${err.message}`);
     }
   }
 };
