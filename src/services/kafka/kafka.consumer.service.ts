@@ -14,6 +14,7 @@ const onMessage = (message: KafkaMessage) => {
   if (!messageString) {
     return;
   }
+
   try {
     const notificationEvent: any = {
       ...JSON.parse(messageString),

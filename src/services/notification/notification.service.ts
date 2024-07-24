@@ -3,13 +3,19 @@ import { getEmailTransporter } from "../../configs/emaisender.configs";
 import { NotificationEvent } from "../../models/kafka.event.models";
 
 const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
-  console.log(`Received email event: ${notificationEvent}`);
+  console.log(`Received email event: ${JSON.stringify(notificationEvent)}`);
 
   const emailOptions: Mail.Options = {
-    to: notificationEvent.Recipients,
-    subject: notificationEvent.Subject,
-    text: !notificationEvent.IsHtml ? notificationEvent.Body : undefined,
-    html: notificationEvent.IsHtml ? notificationEvent.Body : undefined,
+    to: notificationEvent.recipients || notificationEvent.Recipients,
+    subject: notificationEvent.subject || notificationEvent.Subject,
+    text:
+      !notificationEvent.isHtml || !notificationEvent.IsHtml
+        ? notificationEvent.body || notificationEvent.Body
+        : undefined,
+    html:
+      notificationEvent.isHtml || notificationEvent.IsHtml
+        ? notificationEvent.body || notificationEvent.Body
+        : undefined,
   };
 
   try {
