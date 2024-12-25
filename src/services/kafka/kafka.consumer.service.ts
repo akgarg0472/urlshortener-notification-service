@@ -21,7 +21,14 @@ const onMessage = (message: KafkaMessage) => {
       timestamp: new Date().getTime(),
     };
 
-    sendEmailNotification(notificationEvent);
+    if (notificationEvent.NotificationType === "EMAIL") {
+      sendEmailNotification(notificationEvent);
+    } else {
+      console.warn(
+        "Invalid notification type received:",
+        notificationEvent.NotificationType
+      );
+    }
   } catch (err) {
     console.log(`Error processing Kafka message: ${err}`);
   }

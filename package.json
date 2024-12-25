@@ -5,7 +5,7 @@
   "type": "commonjs",
   "main": "build/index.js",
   "scripts": {
-    "dev": "node build/index.js",
+    "dev": "clear && node build/index.js",
     "build": "rimraf build/ && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

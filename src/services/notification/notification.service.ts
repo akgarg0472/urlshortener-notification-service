@@ -1,5 +1,5 @@
 import Mail from "nodemailer/lib/mailer";
-import { getEmailTransporter } from "../../configs/emaisender.configs";
+import { getEmailTransporter } from "../../configs/emailsender.configs";
 import { NotificationEvent } from "../../models/kafka.event.models";
 
 const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
