@@ -7,6 +7,13 @@ import {
   logLevel,
 } from "kafkajs";
 
+import { basename, dirname } from "path";
+import { getLogger } from "../logger/logger";
+
+const logger = getLogger(
+  `${basename(dirname(__filename))}/${basename(__filename)}`
+);
+
 const createKafkaConsumer = (
   brokersUrl: string[],
   loggingLevel: logLevel = logLevel.ERROR
@@ -33,7 +40,7 @@ const initKafkaConsumer = async (
 ) => {
   await consumer.connect();
 
-  console.log(`Connected to Kafka consumer`);
+  logger.info(`Connected to Kafka consumer`);
 
   const topic: ConsumerSubscribeTopics = {
     topics: topics,
@@ -42,19 +49,19 @@ const initKafkaConsumer = async (
 
   await consumer.subscribe(topic);
 
-  console.log(`Consumer subscribed to topics: '${topics}'`);
+  logger.info(`Consumer subscribed to topics: '${topics}'`);
 
   await consumer.run({
     eachMessage: messageHandler,
   });
 };
 
-const disconnectConsumer = async (consumer: Consumer) => {
+const disconnectConsumer = async (consumer: Consumer): Promise<void> => {
   try {
     await consumer.disconnect();
-    console.log("Disconnected from kafka");
-  } catch (error) {
-    console.log("Error while disconnecting from kafka: ", error);
+    logger.info("Disconnected from kafka");
+  } catch (error: any) {
+    logger.error(`Error while disconnecting from kafka: ${error}`);
   }
 };
 

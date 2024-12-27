@@ -1,6 +1,12 @@
 import { EachMessageHandler, KafkaMessage } from "kafkajs";
 import { initKafkaWithTopicAndMessageHandler } from "../../configs/kafka.configs";
 import { sendEmailNotification } from "../notification/notification.service";
+import { basename, dirname } from "path";
+import { getLogger } from "../../logger/logger";
+
+const logger = getLogger(
+  `${basename(dirname(__filename))}/${basename(__filename)}`
+);
 
 const initKafka = async () => {
   const topicName: string =
@@ -21,16 +27,18 @@ const onMessage = (message: KafkaMessage) => {
       timestamp: new Date().getTime(),
     };
 
-    if (notificationEvent.NotificationType === "EMAIL") {
+    const notificationType =
+      notificationEvent.NotificationType ?? notificationEvent.notificationType;
+
+    if (notificationType === "EMAIL") {
       sendEmailNotification(notificationEvent);
     } else {
-      console.warn(
-        "Invalid notification type received:",
-        notificationEvent.NotificationType
+      logger.warn(
+        `Invalid notification type received: ${notificationEvent.NotificationType}`
       );
     }
-  } catch (err) {
-    console.log(`Error processing Kafka message: ${err}`);
+  } catch (err: any) {
+    logger.error(`Error processing Kafka message: ${err}`);
   }
 };
 

@@ -1,9 +1,17 @@
 import Mail from "nodemailer/lib/mailer";
 import { getEmailTransporter } from "../../configs/emailsender.configs";
 import { NotificationEvent } from "../../models/kafka.event.models";
+import { basename, dirname } from "path";
+import { getLogger } from "../../logger/logger";
+
+const logger = getLogger(
+  `${basename(dirname(__filename))}/${basename(__filename)}`
+);
 
 const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
-  console.log(`Received email event: ${JSON.stringify(notificationEvent)}`);
+  if (logger.isInfoEnabled()) {
+    logger.info(`Received email event: ${JSON.stringify(notificationEvent)}`);
+  }
 
   const emailOptions: Mail.Options = {
     to: notificationEvent.recipients || notificationEvent.Recipients,
@@ -20,9 +28,9 @@ const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
 
   try {
     getEmailTransporter().sendMail(emailOptions);
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof Error) {
-      console.error(`Error sending email: ${err.message}`);
+      logger.error(`Error sending email: ${JSON.stringify(err)}`);
     }
   }
 };
