@@ -87,6 +87,7 @@ EMAIL_AUTH_PASSWORD=<email-server-password>
 You can run the application locally by executing the following command:
 
 ```bash
+npm run compile
 npm run start
 ```
 
