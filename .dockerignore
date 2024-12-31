@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# Build artifacts
+build/
+dist/
+binary/
+
+# Environment files
+.env
+.env.example
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# Temporary files
+*.tmp
+*.swp
+*.swo

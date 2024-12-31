@@ -6,7 +6,7 @@ const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
 );
 
-let emailTransporter: Transporter;
+let emailTransporter: Transporter | null = null;
 
 const getTransporterOptions = () => {
   const host: string | undefined = process.env["EMAIL_HOST"];
@@ -38,8 +38,26 @@ const initEmailTransporter = (): void => {
   emailTransporter = nodemailer.createTransport(transporterOptions);
 };
 
-const getEmailTransporter = (): Transporter => {
+const getEmailTransporter = (): Transporter | null => {
   return emailTransporter;
 };
 
-export { getEmailTransporter, initEmailTransporter };
+const destroyEmailSenderTransport = () => {
+  if (!emailTransporter) {
+    logger.info("Not destroying email sender because it is not initialized");
+    return;
+  }
+
+  try {
+    emailTransporter.close();
+    logger.info("Email transport closed successfully");
+  } catch (err: any) {
+    logger.error(`Error destroying email transport: ${err}`);
+  }
+};
+
+export {
+  destroyEmailSenderTransport,
+  getEmailTransporter,
+  initEmailTransporter,
+};

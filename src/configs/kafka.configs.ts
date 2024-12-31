@@ -2,6 +2,7 @@ import {
   Consumer,
   ConsumerConfig,
   ConsumerSubscribeTopics,
+  DisconnectEvent,
   EachMessageHandler,
   Kafka,
   logLevel,
@@ -13,6 +14,33 @@ import { getLogger } from "../logger/logger";
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
 );
+
+let consumer: Consumer | null = null;
+
+const initKafkaWithTopicAndMessageHandler = async (
+  topics: string[],
+  messageHandler: EachMessageHandler
+) => {
+  const brokersUrl: string[] = getKafkaBrokerUrls();
+  consumer = createKafkaConsumer(brokersUrl);
+  await initKafkaConsumer(consumer, topics, messageHandler);
+};
+
+const disconnectConsumer = async (): Promise<void> => {
+  try {
+    if (consumer === null) {
+      logger.info(
+        "Failed to disconnect Kafka consumer because it is not initialized"
+      );
+      return;
+    }
+
+    await consumer.stop();
+    await consumer.disconnect();
+  } catch (error: any) {
+    logger.error(`Error while disconnecting from kafka consumer: ${error}`);
+  }
+};
 
 const createKafkaConsumer = (
   brokersUrl: string[],
@@ -28,9 +56,17 @@ const createKafkaConsumer = (
     groupId: "notification-service-consumer-group",
   };
 
-  const consumer: Consumer = kafka.consumer(consumerConfig);
+  const c: Consumer = kafka.consumer(consumerConfig);
 
-  return consumer;
+  c.on("consumer.disconnect", (event: DisconnectEvent) => {
+    logger.info("Kafka consumer disconnected successfully");
+  });
+
+  c.on("consumer.stop", async (event: DisconnectEvent) => {
+    logger.info("Kafka consumer stopped successfully");
+  });
+
+  return c;
 };
 
 const initKafkaConsumer = async (
@@ -44,7 +80,7 @@ const initKafkaConsumer = async (
 
   const topic: ConsumerSubscribeTopics = {
     topics: topics,
-    fromBeginning: true,
+    fromBeginning: false,
   };
 
   await consumer.subscribe(topic);
@@ -56,26 +92,8 @@ const initKafkaConsumer = async (
   });
 };
 
-const disconnectConsumer = async (consumer: Consumer): Promise<void> => {
-  try {
-    await consumer.disconnect();
-    logger.info("Disconnected from kafka");
-  } catch (error: any) {
-    logger.error(`Error while disconnecting from kafka: ${error}`);
-  }
-};
-
-const initKafkaWithTopicAndMessageHandler = async (
-  topics: string[],
-  messageHandler: EachMessageHandler
-) => {
-  const brokersUrl: string[] = getKafkaBrokerUrls();
-  const consumer: Consumer = createKafkaConsumer(brokersUrl);
-  await initKafkaConsumer(consumer, topics, messageHandler);
-};
-
 const getKafkaBrokerUrls = (): string[] => {
-  const brokerUrlsEnv: string | undefined = process.env.KAFKA_BROKER_URLS;
+  const brokerUrlsEnv: string | undefined = process.env["KAFKA_BROKER_URLS"];
   return brokerUrlsEnv ? brokerUrlsEnv.split(",") : ["localhost:9092"];
 };
 

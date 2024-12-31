@@ -1,8 +1,8 @@
 import Mail from "nodemailer/lib/mailer";
-import { getEmailTransporter } from "../../configs/emailsender.configs";
-import { NotificationEvent } from "../../models/kafka.event.models";
 import { basename, dirname } from "path";
+import { getEmailTransporter } from "../../configs/emailsender.configs";
 import { getLogger } from "../../logger/logger";
+import { NotificationEvent } from "../../models/kafka.event.models";
 
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
@@ -27,7 +27,15 @@ const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
   };
 
   try {
-    getEmailTransporter().sendMail(emailOptions);
+    const transport = getEmailTransporter();
+
+    if (transport) {
+      transport.sendMail(emailOptions);
+    } else {
+      logger.warn(
+        "Not sending email notification transport is not initialized!"
+      );
+    }
   } catch (err: any) {
     if (err instanceof Error) {
       logger.error(`Error sending email: ${JSON.stringify(err)}`);

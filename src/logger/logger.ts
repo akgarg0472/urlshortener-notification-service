@@ -1,6 +1,6 @@
 import winston from "winston";
-import { _getFileLogger } from "./fileLogger";
 import { _getConsoleLogger } from "./consoleLogger";
+import { _getFileLogger } from "./fileLogger";
 
 const validLogLevels = ["error", "warn", "info", "debug", "silly"];
 

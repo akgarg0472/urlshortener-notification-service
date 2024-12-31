@@ -1,8 +1,11 @@
 import { EachMessageHandler, KafkaMessage } from "kafkajs";
-import { initKafkaWithTopicAndMessageHandler } from "../../configs/kafka.configs";
-import { sendEmailNotification } from "../notification/notification.service";
 import { basename, dirname } from "path";
+import {
+  disconnectConsumer,
+  initKafkaWithTopicAndMessageHandler,
+} from "../../configs/kafka.configs";
 import { getLogger } from "../../logger/logger";
+import { sendEmailNotification } from "../notification/notification.service";
 
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
@@ -10,8 +13,13 @@ const logger = getLogger(
 
 const initKafka = async () => {
   const topicName: string =
-    process.env.KAFKA_TOPIC_NAME || "urlshortener-notifications";
+    process.env["KAFKA_TOPIC_NAME"] || "urlshortener.notifications.email";
   initKafkaWithTopicAndMessageHandler([topicName], kafkaMessageHandler);
+};
+
+const destroyKafka = async () => {
+  logger.info("Disconnecting from kafka");
+  await disconnectConsumer();
 };
 
 const onMessage = (message: KafkaMessage) => {
@@ -46,4 +54,4 @@ const kafkaMessageHandler: EachMessageHandler = async ({ message }) => {
   onMessage(message);
 };
 
-export { initKafka, kafkaMessageHandler };
+export { destroyKafka, initKafka, kafkaMessageHandler };
