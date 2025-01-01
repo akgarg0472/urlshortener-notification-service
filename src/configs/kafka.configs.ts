@@ -54,6 +54,7 @@ const createKafkaConsumer = (
 
   const consumerConfig: ConsumerConfig = {
     groupId: "notification-service-consumer-group",
+    allowAutoTopicCreation: true,
   };
 
   const c: Consumer = kafka.consumer(consumerConfig);
@@ -80,7 +81,7 @@ const initKafkaConsumer = async (
 
   const topic: ConsumerSubscribeTopics = {
     topics: topics,
-    fromBeginning: false,
+    fromBeginning: true,
   };
 
   await consumer.subscribe(topic);
@@ -89,6 +90,8 @@ const initKafkaConsumer = async (
 
   await consumer.run({
     eachMessage: messageHandler,
+    autoCommit: true,
+    autoCommitInterval: 5000,
   });
 };
 

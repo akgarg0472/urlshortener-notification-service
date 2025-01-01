@@ -1,4 +1,8 @@
-import { EachMessageHandler, KafkaMessage } from "kafkajs";
+import {
+  ConsumerEachMessagePayload,
+  EachMessageHandler,
+  KafkaMessage,
+} from "kafkajs";
 import { basename, dirname } from "path";
 import {
   disconnectConsumer,
@@ -50,8 +54,10 @@ const onMessage = (message: KafkaMessage) => {
   }
 };
 
-const kafkaMessageHandler: EachMessageHandler = async ({ message }) => {
-  onMessage(message);
+const kafkaMessageHandler: EachMessageHandler = async (
+  message: ConsumerEachMessagePayload
+) => {
+  onMessage(message.message);
 };
 
 export { destroyKafka, initKafka, kafkaMessageHandler };
