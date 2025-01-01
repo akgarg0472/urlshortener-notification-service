@@ -2,7 +2,6 @@ import {
   Consumer,
   ConsumerConfig,
   ConsumerSubscribeTopics,
-  DisconnectEvent,
   EachMessageHandler,
   Kafka,
   LogEntry,
@@ -69,11 +68,15 @@ const createKafkaConsumer = (
 
   const c: Consumer = kafka.consumer(consumerConfig);
 
-  c.on("consumer.disconnect", (event: DisconnectEvent) => {
+  c.on("consumer.connect", () => {
+    logger.info("Kafka consumer connected successfully");
+  });
+
+  c.on("consumer.disconnect", () => {
     logger.info("Kafka consumer disconnected successfully");
   });
 
-  c.on("consumer.stop", async (event: DisconnectEvent) => {
+  c.on("consumer.stop", async () => {
     logger.info("Kafka consumer stopped successfully");
   });
 
