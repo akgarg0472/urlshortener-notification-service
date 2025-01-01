@@ -1,7 +1,7 @@
 # URL Shortener Notification Service
 
 ![Node Version](https://img.shields.io/badge/Node-18-green)
-![version](https://img.shields.io/badge/version-1.0.0-blue)
+![version](https://img.shields.io/badge/version-1.1.1-blue)
 
 ## Table of Contents
 
@@ -62,6 +62,9 @@ LOGS_BASE_DIR=/tmp/urlshortener/notification/
 LOG_FILE_NAME=notifications.log
 KAFKA_BROKER_URLS=localhost:9092
 KAFKA_TOPIC_NAME=urlshortener.notifications.email
+KAFKA_MAX_RETRY_TIME_MS=60000
+KAFKA_INITIAL_RETRY_TIME_MS=1000
+KAFKA_MAX_RETRIES=10
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_SECURE=false
@@ -74,6 +77,9 @@ EMAIL_AUTH_PASSWORD=<email-server-password>
 - **LOGS_BASE_DIR**: Directory where logs are saved.
 - **KAFKA_BROKER_URLS**: Kafka broker URLs, usually `localhost:9092`.
 - **KAFKA_TOPIC_NAME**: Kafka topic name for the email notifications.
+- **KAFKA_MAX_RETRY_TIME_MS**: The maximum total time (in milliseconds) the consumer will keep retrying a failed operation before giving up. In this case, it's set to 60,000 ms (or 1 minute).
+- **KAFKA_INITIAL_RETRY_TIME_MS**: The initial time (in milliseconds) between retry attempts after a failure. In this case, it's set to 1,000 ms (or 1 second) for the first retry.
+- **KAFKA_MAX_RETRIES**: The maximum number of retry attempts allowed before failing the operation. In this case, it’s set to 10 retries.
 - **EMAIL_HOST**: SMTP server for sending emails (e.g., `smtp.gmail.com`).
 - **EMAIL_PORT**: SMTP port (typically `587` for Gmail).
 - **EMAIL_SECURE**: Whether to use SSL/TLS for the SMTP connection (set to `false` for Gmail).
