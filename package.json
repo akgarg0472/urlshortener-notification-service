@@ -7,7 +7,7 @@
   "bin": "dist/notificationService.js",
   "scripts": {
     "clean": "rimraf dist && rimraf binary",
-    "dev": "clear && node dist/notificationService.js",
+    "dev": "node dist/notificationService.js",
     "compile": "npm run clean && npm run tsc && npm run minify",
     "build": "npm run compile && npm run package",
     "tsc": "tsc",
