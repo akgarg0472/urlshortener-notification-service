@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
+import { KafkaJSProtocolError } from "kafkajs";
 import { basename, dirname } from "path";
 import {
   destroyEmailSenderTransport,
@@ -25,7 +26,13 @@ process.on("uncaughtException", (error: Error) => {
   }
 });
 
-process.on("unhandledRejection", (reason: any, _: Promise<unknown>) => {
+process.on("unhandledRejection", async (reason: any, _: Promise<unknown>) => {
+  if (reason instanceof KafkaJSProtocolError) {
+    logger.warn(`Terminating application due to kafka error: ${reason}`);
+    await shutdown(-1);
+    return;
+  }
+
   logger.error(`Unhandled Rejection with reason: ${JSON.stringify(reason)}`);
 });
 
