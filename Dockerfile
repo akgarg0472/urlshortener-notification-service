@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Runtime Stage
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 WORKDIR /app
 
