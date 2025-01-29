@@ -1,3 +1,3 @@
 npm run clean
 npm run compile
-npm run dev
+clear;clear;npm run dev

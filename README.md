@@ -1,7 +1,7 @@
 # URL Shortener Notification Service
 
 ![Node Version](https://img.shields.io/badge/Node-18-green)
-![version](https://img.shields.io/badge/version-1.1.2blue)
+![version](https://img.shields.io/badge/version-1.1.3-blue)
 
 ## Table of Contents
 
