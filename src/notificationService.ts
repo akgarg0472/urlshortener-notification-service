@@ -3,11 +3,17 @@ dotenv.config();
 
 import { KafkaJSProtocolError } from "kafkajs";
 import { basename, dirname } from "path";
+import { startHttpServer, stopHttpServer } from "./api/apiServer";
 import {
   destroyEmailSenderTransport,
   initEmailTransporter,
 } from "./configs/emailsender.configs";
+import {
+  destroyDiscoveryClient,
+  initDiscoveryClient,
+} from "./discovery-client/discoveryClient";
 import { getLogger } from "./logger/logger";
+import { initPrometheusClient } from "./metrics";
 import {
   destroyKafka,
   initKafka,
@@ -16,9 +22,6 @@ import {
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
 );
-
-initEmailTransporter();
-initKafka();
 
 process.on("uncaughtException", (error: Error) => {
   if (logger.isErrorEnabled()) {
@@ -46,8 +49,10 @@ process.on("SIGINT", async () => {
   await shutdown(130);
 });
 
-const shutdown = async (exitCode: number) => {
+export const shutdown = async (exitCode: number) => {
   await destroyKafka();
+  await destroyDiscoveryClient();
+  stopHttpServer();
   destroyEmailSenderTransport();
 
   logger.info(`Exiting process with exit code: ${exitCode}`);
@@ -62,3 +67,11 @@ const shutdown = async (exitCode: number) => {
 
   process.exit(exitCode);
 };
+
+(async () => {
+  await initDiscoveryClient();
+  initPrometheusClient();
+  startHttpServer();
+  initEmailTransporter();
+  initKafka();
+})();
