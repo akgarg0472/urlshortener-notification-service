@@ -16,7 +16,7 @@ const logger = getLogger(
  * Creates and configures an HTTP server that handles various API requests.
  *
  * The server responds to the following routes:
- * - `/prometheus/metrics`: Provides application metrics.
+ * - `/metrics`: Provides application metrics.
  * - All other routes return a 404 Not Found response.
  */
 const httpServer = http.createServer(
@@ -31,7 +31,7 @@ const httpServer = http.createServer(
     let statusCode: number = 200;
 
     try {
-      if (req.url === "/prometheus/metrics") {
+      if (req.url === "/metrics") {
         const metrics: string = await getMetrics();
         res.setHeader("Content-Type", "text/plain");
         res.end(metrics);
