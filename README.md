@@ -60,6 +60,12 @@ NODE_ENV=dev
 LOG_LEVEL=INFO
 LOGS_BASE_DIR=/tmp/urlshortener/notification/
 LOG_FILE_NAME=notifications.log
+ENABLE_DISCOVERY_CLIENT=true
+DISCOVERY_SERVER_HOST=localhost
+DISCOVERY_SERVER_PORT=8500
+DISCOVERY_SERVER_MAX_RETRIES=5
+DISCOVERY_SERVER_REQUEST_RETRY_DELAY_MS=500
+DISCOVERY_SERVER_SERVER_QUERY_INTERVAL_MS=30000
 KAFKA_BROKER_URLS=localhost:9092
 KAFKA_TOPIC_NAME=urlshortener.notifications.email
 KAFKA_MAX_RETRY_TIME_MS=60000
@@ -85,6 +91,12 @@ EMAIL_AUTH_PASSWORD=<email-server-password>
 - **EMAIL_SECURE**: Whether to use SSL/TLS for the SMTP connection (set to `false` for Gmail).
 - **EMAIL_AUTH_USERNAME**: Email server username (your email address).
 - **EMAIL_AUTH_PASSWORD**: Email server password (application-specific password if using Gmail).
+- **ENABLE_DISCOVERY_CLIENT**: Enable/disable discovery client (true/false).
+- **DISCOVERY_SERVER_HOST**: Discovery server host (e.g., localhost).
+- **DISCOVERY_SERVER_PORT**: Discovery server port (e.g., 8500).
+- **DISCOVERY_SERVER_MAX_RETRIES**: Maximum number of retries for connecting to the discovery server (e.g., 5).
+- **DISCOVERY_SERVER_REQUEST_RETRY_DELAY_MS**: Delay in milliseconds between retries for requests to the discovery server (e.g., 500 ms).
+- **DISCOVERY_SERVER_SERVER_QUERY_INTERVAL_MS**: Interval in milliseconds between queries to the discovery server (e.g., 30000 ms).
 
 ## Running the Application
 
