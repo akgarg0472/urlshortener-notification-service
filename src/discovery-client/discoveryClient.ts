@@ -101,7 +101,7 @@ const createDiscoveryClient = (): Consul => {
 };
 
 const getApplicationPort = (): number => {
-  const port = process.env["SERVER_PORT"] || "7979";
+  const port = process.env["SERVER_PORT"] || "6789";
   return parseInt(port);
 };
 
