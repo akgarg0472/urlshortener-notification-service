@@ -24,12 +24,6 @@ const logger = getLogger(
  */
 const httpServer = http.createServer(
   async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    if (logger.isDebugEnabled()) {
-      logger.debug(
-        `HTTP request received: url=${req.url}, remote IP=${req.socket.remoteAddress}`
-      );
-    }
-
     const startTime: number = performance.now();
     const clientIp = getClientIp(req);
     let statusCode: number = 200;
@@ -51,7 +45,7 @@ const httpServer = http.createServer(
         );
       }
     } catch (err: any) {
-      logger.error(`Error processing HTTP request`, { error: err });
+      logger.error(`Error processing HTTP request:`, err);
       statusCode = 500;
     } finally {
       const durationInMillis: number = parseFloat(

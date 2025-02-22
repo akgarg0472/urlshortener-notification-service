@@ -49,7 +49,7 @@ const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
       logger.error("Not sending email because transport is not initialized!");
     }
   } catch (err: any) {
-    logger.error(`Error sending email`, { error: err });
+    logger.error(`Error sending email:`, err);
   } finally {
     increaseNotificationEventsCounter(NotificationType.EMAIL);
     observeNotificationEventDuration(

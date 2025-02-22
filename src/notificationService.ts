@@ -23,9 +23,9 @@ const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
 );
 
-process.on("uncaughtException", (error: Error) => {
+process.on("uncaughtException", (err: Error) => {
   if (logger.isErrorEnabled()) {
-    logger.error(`uncaughtException: ${JSON.stringify(error)}`);
+    logger.error(`uncaughtException:`, err);
   }
 });
 

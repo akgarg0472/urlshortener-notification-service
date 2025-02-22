@@ -50,7 +50,7 @@ const onMessage = (message: KafkaMessage) => {
       );
     }
   } catch (err: any) {
-    logger.error(`Error processing Kafka message`, { error: err });
+    logger.error(`Error processing Kafka message:`, err);
   }
 };
 

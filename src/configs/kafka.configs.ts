@@ -38,8 +38,8 @@ const disconnectConsumer = async (): Promise<void> => {
 
     await consumer.stop();
     await consumer.disconnect();
-  } catch (error: any) {
-    logger.error(`Error disconnecting from kafka consumer`, { error: error });
+  } catch (err: any) {
+    logger.error(`Error disconnecting kafka consumer:`, err);
   }
 };
 

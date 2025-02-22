@@ -1,6 +1,7 @@
 import nodemailer, { Transporter } from "nodemailer";
 import { basename, dirname } from "path";
 import { getLogger } from "../logger/logger";
+import { shutdown } from "../notificationService";
 
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
@@ -17,7 +18,8 @@ const getTransporterOptions = () => {
 
   if (!host || !port || !secure || !username || !password) {
     logger.error("Invalid email sender configs found. Terminating application");
-    process.exit(1);
+    shutdown(1);
+    return;
   }
 
   const transporterOptions = {
@@ -52,7 +54,7 @@ const destroyEmailSenderTransport = () => {
     emailTransporter.close();
     logger.info("Email transport closed successfully");
   } catch (err: any) {
-    logger.error(`Error destroying email transport`, { error: err });
+    logger.error(`Error destroying email transport:`, err);
   }
 };
 
