@@ -1,7 +1,7 @@
 # URL Shortener Notification Service
 
 ![Node Version](https://img.shields.io/badge/Node-18-green)
-![version](https://img.shields.io/badge/version-1.2.0-blue)
+![version](https://img.shields.io/badge/version-1.3.0-blue)
 
 ## Table of Contents
 
@@ -56,10 +56,6 @@ The application is configured through environment variables. You can define them
 Here are the environment variables used by the service:
 
 ```bash
-NODE_ENV=dev
-LOG_LEVEL=INFO
-LOGS_BASE_DIR=/tmp/urlshortener/notification/
-LOG_FILE_NAME=notifications.log
 ENABLE_DISCOVERY_CLIENT=true
 DISCOVERY_SERVER_HOST=localhost
 DISCOVERY_SERVER_PORT=8500
@@ -78,9 +74,6 @@ EMAIL_AUTH_USERNAME=<email-server-username>
 EMAIL_AUTH_PASSWORD=<email-server-password>
 ```
 
-- **NODE_ENV**: Set to `dev` for development or `prod` for production.
-- **LOG_LEVEL**: The log level for the application (e.g., `INFO`, `DEBUG`).
-- **LOGS_BASE_DIR**: Directory where logs are saved.
 - **KAFKA_BROKER_URLS**: Kafka broker URLs, usually `localhost:9092`.
 - **KAFKA_TOPIC_NAME**: Kafka topic name for the email notifications.
 - **KAFKA_MAX_RETRY_TIME_MS**: The maximum total time (in milliseconds) the consumer will keep retrying a failed operation before giving up. In this case, it's set to 60,000 ms (or 1 minute).
@@ -97,6 +90,47 @@ EMAIL_AUTH_PASSWORD=<email-server-password>
 - **DISCOVERY_SERVER_MAX_RETRIES**: Maximum number of retries for connecting to the discovery server (e.g., 5).
 - **DISCOVERY_SERVER_REQUEST_RETRY_DELAY_MS**: Delay in milliseconds between retries for requests to the discovery server (e.g., 500 ms).
 - **DISCOVERY_SERVER_SERVER_QUERY_INTERVAL_MS**: Interval in milliseconds between queries to the discovery server (e.g., 30000 ms).
+
+### Logging Configuration
+
+The URL Shortener Notification Service uses environment variables for logging configuration. Below are the available environment
+variables that you can customize:
+
+- **LOGGING_CONSOLE_ENABLED**: Enables or disables console-based logging.
+
+  - Default value: `false`
+  - Allowed values: `true`, `false`
+
+- **LOGGING_FILE_ENABLED**: Enables or disables file-based logging.
+
+  - Default value: `false`
+  - Allowed values: `true`, `false`
+
+- **LOGGING_FILE_BASE_PATH**: Specifies the base path for log files.
+
+  - Default value: `/tmp`
+
+- **LOGGING_LEVEL**: Specifies the log level for the application.
+
+  - Default value: `INFO`
+  - Allowed values: `DEBUG`, `INFO`, `WARN`, `ERROR`
+
+- **LOGGING_STREAM_ENABLED**: Enables or disables streaming logs.
+
+  - Default value: `false`
+  - Allowed values: `true`, `false`
+
+- **LOGGING_STREAM_HOST**: Specifies the host for streaming logs.
+
+  - Default value: `localhost`
+
+- **LOGGING_STREAM_PORT**: Specifies the port for streaming logs.
+
+  - Default value: `5000`
+
+- **LOGGING_STREAM_PROTOCOL**: Specifies the protocol used for log streaming.
+  - Default value: `TCP`
+  - Allowed values: `TCP`, `UDP`
 
 ## Running the Application
 

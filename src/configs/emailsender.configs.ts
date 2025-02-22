@@ -52,7 +52,7 @@ const destroyEmailSenderTransport = () => {
     emailTransporter.close();
     logger.info("Email transport closed successfully");
   } catch (err: any) {
-    logger.error(`Error destroying email transport: ${err}`);
+    logger.error(`Error destroying email transport`, { error: err });
   }
 };
 

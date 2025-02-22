@@ -22,7 +22,7 @@ const initKafka = async () => {
 };
 
 const destroyKafka = async () => {
-  logger.info("Disconnecting from kafka");
+  logger.info("Destroying Kafka instance");
   await disconnectConsumer();
 };
 
@@ -50,7 +50,7 @@ const onMessage = (message: KafkaMessage) => {
       );
     }
   } catch (err: any) {
-    logger.error(`Error processing Kafka message: ${err}`);
+    logger.error(`Error processing Kafka message`, { error: err });
   }
 };
 

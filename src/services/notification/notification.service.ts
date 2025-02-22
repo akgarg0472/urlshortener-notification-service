@@ -18,8 +18,10 @@ const logger = getLogger(
 const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
   const startTime = performance.now();
 
-  if (logger.isInfoEnabled()) {
-    logger.info(`Received email event: ${JSON.stringify(notificationEvent)}`);
+  if (logger.isDebugEnabled()) {
+    logger.debug(
+      `Received email notification event: ${JSON.stringify(notificationEvent)}`
+    );
   }
 
   const emailOptions: Mail.Options = {
@@ -44,14 +46,10 @@ const sendEmailNotification = async (notificationEvent: NotificationEvent) => {
       await transport.sendMail(emailOptions);
       successful = true;
     } else {
-      logger.warn(
-        "Not sending email notification transport is not initialized!"
-      );
+      logger.error("Not sending email because transport is not initialized!");
     }
   } catch (err: any) {
-    if (err instanceof Error) {
-      logger.error(`Error sending email: ${JSON.stringify(err)}`);
-    }
+    logger.error(`Error sending email`, { error: err });
   } finally {
     increaseNotificationEventsCounter(NotificationType.EMAIL);
     observeNotificationEventDuration(

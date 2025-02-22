@@ -1,38 +1,91 @@
+import net from "net";
 import winston from "winston";
-import { _getConsoleLogger } from "./consoleLogger";
-import { _getFileLogger } from "./fileLogger";
+import DailyRotateFile from "winston-daily-rotate-file";
+import { ServerInfo } from "../serverInfo";
 
-const validLogLevels = ["error", "warn", "info", "debug", "silly"];
+// --- Environment-Based Configuration ---
+const validLogLevels: string[] = ["error", "warn", "info", "debug", "silly"];
+const logLevel: string =
+  process.env["LOGGING_LEVEL"] &&
+  validLogLevels.includes(process.env["LOGGING_LEVEL"])
+    ? process.env["LOGGING_LEVEL"].toLowerCase()
+    : "info";
+const serviceName: string = "urlshortener-notification-service";
+const enableConsoleLogging: boolean =
+  process.env["LOGGING_CONSOLE_ENABLED"] === "true";
+const enableFileLogging: boolean =
+  process.env["LOGGING_FILE_ENABLED"] === "true";
+const enableStreamingLogs: boolean =
+  process.env["LOGGING_STREAM_ENABLED"] === "true";
+const loggingFileBasePath: string =
+  process.env["LOGGING_FILE_BASE_PATH"] || "/tmp";
+const loggingStreamHost: string =
+  process.env["LOGGING_STREAM_HOST"] || "localhost";
+const loggingStreamPort: number = process.env["LOGGING_STREAM_PORT"]
+  ? parseInt(process.env["LOGGING_STREAM_PORT"])
+  : 5000;
 
-/**
- * Enum representing the application environments.
- */
-enum Environment {
-  PROD = "PROD",
-  TEST = "TEST",
-  DEV = "DEV",
+const transports: winston.transport[] = [];
+
+if (enableConsoleLogging) {
+  transports.push(new winston.transports.Console());
 }
 
-/**
- * Retrieves the current application environment from environment variables.
- * @returns {Environment} The current environment.
- */
-const getCurrentEnv = (): Environment => {
-  const env = process.env["NODE_ENV"]?.toUpperCase() ?? "DEV";
+if (enableFileLogging) {
+  const fileTransport = new DailyRotateFile({
+    dirname: loggingFileBasePath,
+    filename: serviceName,
+    extension: ".log",
+    zippedArchive: true,
+    frequency: "1h",
+    maxFiles: "14d",
+  });
 
-  switch (env) {
-    case Environment.PROD:
-      return Environment.PROD;
-    case Environment.TEST:
-      return Environment.TEST;
-    case Environment.DEV:
-      return Environment.DEV;
-    default:
-      return Environment.DEV; // Default to DEV if no valid environment is set
-  }
-};
+  fileTransport.on("error", (err: Error) => {
+    console.error("Error in file logging transport:", err);
+  });
 
-const loggerMap = new Map<string, winston.Logger>();
+  transports.push(fileTransport);
+}
+
+if (enableStreamingLogs) {
+  const socket: net.Socket = net.connect(
+    Number(loggingStreamPort),
+    loggingStreamHost
+  );
+  socket.on("error", (err: Error) => {
+    console.error(`TCP Logging error:`, err);
+  });
+  transports.push(
+    new winston.transports.Stream({
+      stream: socket,
+    })
+  );
+}
+
+if (transports.length === 0) {
+  transports.push(new winston.transports.Console());
+}
+
+const rootLogger = winston.createLogger({
+  level: logLevel,
+  defaultMeta: {
+    service: serviceName,
+  },
+  format: winston.format.combine(
+    winston.format.errors({
+      stack: true,
+    }),
+    winston.format((info) => {
+      info.host = ServerInfo.ip;
+      info.port = ServerInfo.port;
+      return info;
+    })(),
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: transports,
+});
 
 /**
  * Retrieves a logger instance for the specified file.
@@ -40,67 +93,11 @@ const loggerMap = new Map<string, winston.Logger>();
  * If a logger for the file already exists, it returns the cached instance.
  * Otherwise, it creates a new logger and caches it.
  *
- * @param fileName - The name of the file for which to retrieve the logger.
+ * @param loggerName - The name of the logger.
  * @returns {winston.Logger} A Winston logger instance.
  */
-export const getLogger = (fileName: string): winston.Logger => {
-  let logger: winston.Logger | undefined = loggerMap.get(fileName);
-
-  if (logger !== undefined) {
-    return logger; // Return cached logger if it exists
-  }
-
-  logger = createLogger(fileName); // Create a new logger
-  loggerMap.set(fileName, logger); // Cache the logger
-  return logger;
-};
-
-/**
- * Creates a logger instance based on the current environment.
- *
- * @param fileName - The name of the file for which to create the logger.
- * @returns {winston.Logger} A Winston logger instance.
- */
-const createLogger = (fileName: string): winston.Logger => {
-  const env: Environment = getCurrentEnv();
-  const level: string = process.env["LOG_LEVEL"]?.toLowerCase() ?? "info";
-
-  if (!validLogLevels.includes(level)) {
-    throw new Error(
-      `Invalid log level provided: ${level}. Supported log levels: ${validLogLevels.join(
-        ", "
-      )}`
-    );
-  }
-
-  if (env === Environment.PROD) {
-    return _getFileLogger(fileName, level); // Use file logger in production environment only
-  } else {
-    return _getConsoleLogger(fileName, level); // Use console logger in non-production environment
-  }
-};
-
-/**
- * Changes the log level of a specified logger or all loggers if no name is provided.
- *
- * @param level - The new log level to set (e.g., 'info', 'debug', 'error').
- * @param loggerName - Optional; the name of the logger to change. If null, changes all loggers.
- */
-export const changeLogLevel = (level: string, loggerName: string | null) => {
-  if (loggerName !== null) {
-    const logger = loggerMap.get(loggerName);
-
-    if (logger) {
-      logger.level = level;
-      logger.log(
-        level,
-        `Log level changed to '${level.toUpperCase()}' for '${loggerName}'`
-      );
-    }
-  } else {
-    loggerMap.forEach((logger: winston.Logger) => {
-      logger.level = level;
-      logger.log(level, `Log level changed to '${level.toUpperCase()}'`);
-    });
-  }
+export const getLogger = (loggerName: string): winston.Logger => {
+  return rootLogger.child({
+    logger: loggerName,
+  });
 };

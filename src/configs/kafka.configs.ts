@@ -31,7 +31,7 @@ const disconnectConsumer = async (): Promise<void> => {
   try {
     if (consumer === null) {
       logger.info(
-        "Failed to disconnect Kafka consumer because it is not initialized"
+        "Not disconnecting Kafka consumer because it is not initialized"
       );
       return;
     }
@@ -39,7 +39,7 @@ const disconnectConsumer = async (): Promise<void> => {
     await consumer.stop();
     await consumer.disconnect();
   } catch (error: any) {
-    logger.error(`Error while disconnecting from kafka consumer: ${error}`);
+    logger.error(`Error disconnecting from kafka consumer`, { error: error });
   }
 };
 

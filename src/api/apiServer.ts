@@ -1,5 +1,6 @@
 import http from "http";
 
+import { AddressInfo } from "net";
 import { basename, dirname } from "path";
 import { getLogger } from "../logger/logger.js";
 import {
@@ -7,6 +8,8 @@ import {
   increaseHttpRequestCounter,
   observeHttpRequestDuration,
 } from "../metrics.js";
+import { ServerInfo } from "../serverInfo.js";
+import { getLocalIPAddress } from "../utils/networkUtils.js";
 
 const logger = getLogger(
   `${basename(dirname(__filename))}/${basename(__filename)}`
@@ -28,6 +31,7 @@ const httpServer = http.createServer(
     }
 
     const startTime: number = performance.now();
+    const clientIp = getClientIp(req);
     let statusCode: number = 200;
 
     try {
@@ -47,16 +51,29 @@ const httpServer = http.createServer(
         );
       }
     } catch (err: any) {
-      logger.error(`Error processing HTTP request: ${err}`);
+      logger.error(`Error processing HTTP request`, { error: err });
       statusCode = 500;
     } finally {
+      const durationInMillis: number = parseFloat(
+        (performance.now() - startTime).toFixed(3)
+      );
+
       increaseHttpRequestCounter(req.method, req.url, statusCode);
       observeHttpRequestDuration(
         req.method,
         req.url,
         statusCode,
-        performance.now() - startTime
+        durationInMillis
       );
+
+      logger.info("HTTP request", {
+        method: req.method,
+        url: req.url?.split("?")[0],
+        status: statusCode,
+        responseTime: durationInMillis,
+        ip: clientIp,
+        requestId: req.headers["X-Request-Id"],
+      });
     }
   }
 );
@@ -76,7 +93,21 @@ export const startHttpServer = (): http.Server<
   const port: any = process.env["SERVER_PORT"] || 6789;
 
   httpServer.listen(port, () => {
-    const address = httpServer.address();
+    const address: AddressInfo | string | null = httpServer.address();
+
+    if (!address || typeof address === "string") {
+      httpServer.close(() => {
+        process.exit(1);
+      });
+      return;
+    }
+
+    ServerInfo.ip =
+      address.address === "::" || address.address === "0.0.0.0"
+        ? getLocalIPAddress()
+        : address.address;
+    ServerInfo.port = address.port;
+
     logger.info(`HTTP server started listening on ${JSON.stringify(address)}`);
 
     httpServer.on("close", () => {
@@ -89,4 +120,12 @@ export const startHttpServer = (): http.Server<
 
 export const stopHttpServer = () => {
   httpServer?.close();
+};
+
+const getClientIp = (req: http.IncomingMessage): string | undefined => {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  if (typeof forwardedFor === "string") {
+    return forwardedFor.split(",")[0].trim();
+  }
+  return req.socket.remoteAddress;
 };

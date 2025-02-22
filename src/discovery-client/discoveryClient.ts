@@ -1,10 +1,10 @@
 import Consul from "consul";
 import { RegisterOptions } from "consul/lib/agent/service";
 import { randomUUID } from "crypto";
-import os from "os";
 import { basename, dirname } from "path";
 import { getLogger } from "../logger/logger";
 import { shutdown } from "../notificationService";
+import { ServerInfo } from "../serverInfo";
 import { getEnvNumber } from "../utils/envUtils";
 
 const logger = getLogger(
@@ -38,8 +38,8 @@ export const initDiscoveryClient = async (isRetry: boolean = false) => {
   const consulRegisterOptions: RegisterOptions = {
     id: serviceId,
     name: serviceName,
-    address: getLocalIPAddress(),
-    port: getApplicationPort(),
+    address: ServerInfo.ip,
+    port: ServerInfo.port,
     check: {
       name: `health-check`,
       timeout: "5s",
@@ -53,7 +53,7 @@ export const initDiscoveryClient = async (isRetry: boolean = false) => {
     logger.info("Discovery client initialized successfully");
     initHeartbeat();
   } catch (err: any) {
-    logger.error(`Failed to initialize Discovery client: ${err}`);
+    logger.error(`Error initializing discovery client`, { error: err });
 
     if (retryCount < MAX_RETRIES) {
       retryCount++;
@@ -81,7 +81,7 @@ export const destroyDiscoveryClient = async () => {
   try {
     await discoveryClient.agent.service.deregister(serviceId);
   } catch (err: any) {
-    logger.error(`Failed to stop Discovery client: ${err}`);
+    logger.error(`Failed to stop Discovery client`, { error: err });
   } finally {
     clearRunningIntervals();
   }
@@ -100,14 +100,8 @@ const createDiscoveryClient = (): Consul => {
   return new Consul(consulOptions);
 };
 
-const getApplicationPort = (): number => {
-  const port = process.env["SERVER_PORT"] || "6789";
-  return parseInt(port);
-};
-
 const getDiscoveryServerPort = (): number => {
-  const port = process.env["DISCOVERY_SERVER_PORT"] || "8500";
-  return parseInt(port);
+  return parseInt(process.env["DISCOVERY_SERVER_PORT"] || "8500");
 };
 
 const getDiscoveryServerHost = (): string => {
@@ -140,7 +134,7 @@ const sendHeartbeat = async () => {
       note: `Heartbeat from agent`,
     });
   } catch (err: any) {
-    logger.error(`Error sending heartbeat: ${err}`);
+    logger.error(`Error sending heartbeat`, { error: err });
 
     if (err instanceof Error) {
       if (err.message.includes("not found")) {
@@ -150,19 +144,4 @@ const sendHeartbeat = async () => {
       }
     }
   }
-};
-
-const getLocalIPAddress = (): string => {
-  const interfaces = os.networkInterfaces();
-  let ip = "127.0.0.1";
-
-  for (const iface in interfaces) {
-    for (const details of interfaces[iface]!) {
-      if (details.family === "IPv4" && !details.internal) {
-        return details.address;
-      }
-    }
-  }
-
-  return ip;
 };
