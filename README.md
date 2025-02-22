@@ -9,7 +9,6 @@
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
-  - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [Docker Setup](#docker-setup)
 - [Additional Notes](#additional-notes)
