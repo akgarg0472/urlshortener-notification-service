@@ -7,9 +7,8 @@ import { ServerInfo } from "../serverInfo";
 // --- Environment-Based Configuration ---
 const validLogLevels: string[] = ["error", "warn", "info", "debug", "silly"];
 const logLevel: string =
-  process.env["LOGGING_LEVEL"] &&
-  validLogLevels.includes(process.env["LOGGING_LEVEL"])
-    ? process.env["LOGGING_LEVEL"].toLowerCase()
+  process.env["LOG_LEVEL"] && validLogLevels.includes(process.env["LOG_LEVEL"])
+    ? process.env["LOG_LEVEL"].toLowerCase()
     : "info";
 const serviceName: string = "urlshortener-statistics-service";
 const enableConsoleLogging: boolean =

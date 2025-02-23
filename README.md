@@ -1,7 +1,7 @@
 # URL Shortener Notification Service
 
 ![Node Version](https://img.shields.io/badge/Node-20-green)
-![version](https://img.shields.io/badge/version-1.3.2-blue)
+![version](https://img.shields.io/badge/version-1.3.3-blue)
 
 ## Table of Contents
 
@@ -109,7 +109,7 @@ variables that you can customize:
 
   - Default value: `/tmp`
 
-- **LOGGING_LEVEL**: Specifies the log level for the application.
+- **LOG_LEVEL**: Specifies the log level for the application.
 
   - Default value: `INFO`
   - Allowed values: `DEBUG`, `INFO`, `WARN`, `ERROR`
